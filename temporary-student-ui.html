@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/4.3.1/lumen/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-vue/dist/bootstrap-vue.min.css">
+    <title>Temporary Student UI</title>
+</head>
+<body>
+
+
+<!-- This div is rendered by Vuejs - Allows for Vuejs directives and componets -->
+<div class="container-fluid" id="app">
+    <b-jumbotron header="Temporary Student UI" lead="Quick and Dirty">
+        <b-input-group class="mt-3">
+            <template #append>
+                <button class="btn btn-info fas fa-save fa-2x" @click="getStudents" ></button>
+             </template>
+            <b-form-input v-model="searchString" placeholder="search where like" @update="getStudents" debounce="500" ></b-form-input>
+        </b-input-group>
+    </b-jumbotron>
+    <button @click="incrementCount(3)">
+        Count is: {{ count }}
+        Double time: {{ countDoubled }}
+    </button>
+    <input type="text" v-model.number="count" />
+    <b-button variant="danger" @click="addStudent" >Add Student</b-button>
+
+    <div v-if="Math.random() > 0.5">
+        Now you see me
+    </div>
+    <div v-else>
+        Now you don't
+    </div>
+
+    <table class="table table-hover table-striped">
+        <tr>
+            <th>ID</th>
+            <th>Given Name</th>
+            <th>Family Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Password</th>
+            <th>Action</th>
+        </tr>
+
+        <tr>
+            <td></td> <!-- ID field - user cannot input id -->
+            <td>
+            <b-form-group>
+                <b-form-input v-model="studentToCreate.givenName" trim></b-form-input>
+            </b-form-group>
+            </td>
+            <td>
+            <b-form-group>
+                <b-form-input v-model="studentToCreate.familyName" trim></b-form-input>
+            </b-form-group>
+            </td>
+            <td>
+            <b-form-group>
+                <b-form-input v-model="studentToCreate.email" trim></b-form-input>
+            </b-form-group>
+            </td>
+            <td>
+                <b-form-group>
+                    <b-form-input v-model="studentToCreate.phone" trim></b-form-input>
+                </b-form-group>
+            </td>
+            <td>
+                <b-form-group>
+                    <b-form-input v-model="studentToCreate.address" trim></b-form-input>
+                </b-form-group>
+            </td>
+            <td>
+                <b-form-group>
+                    <b-form-input v-model="studentToCreate.password" trim></b-form-input>
+                </b-form-group>
+            </td>
+            <td>
+                <button class="btn btn-primary fas fa-save fa-2x" @click="postStudent" ></button>
+            </td>
+        </tr>
+
+        <tr v-for="stu in students" :key="stu.id">
+            <td v-for="field in stu" >{{field}}</td>
+            <td>-private-</td><!-- password field hidden -->
+            <td>
+                <button class="btn btn-danger fas fa-trash-alt fa-2x" title="Delete" @click="deleteStudent(stu.id)" ></button>
+            </td>
+        </tr>
+    </table>
+
+    <!— OPTIONAL: used to DEBUG the data properties/variables by rendering them on the page-->
+    <b-alert variant="secondary" dismissible show>
+        <pre>
+DATA:
+{{$data}}
+        </pre>
+    </b-alert>
+
+
+</div>
+
+
+<!— IMPORT: JS Libraries from the internet-->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/portal-vue/dist/portal-vue.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-vue/dist/bootstrap-vue.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app', // css selector to find the div with id="app"
+        data:{ // essentially the app state - all the data currently used by the app for rendering
+            students:[ // contains all the student objects used to display in a table
+                {id:1, givenName:'Bob', familyName:'Smith', email:'bob@smith.ca'},
+                {id:2, givenName:'Sally', familyName:'Jones', email:'sally@jones.ca'},
+                {id:3, givenName:'Ernesto', familyName:'Basoalto', email:'basoaltoe@saskpolytech.ca'},
+            ],
+            count:0,
+            studentToCreate:{},
+            searchString:''
+        },
+        methods:{
+            incrementCount(step){
+                this.count += step
+            },
+            addStudent(){
+                this.students.push({id:this.students.length, givenName:'rANDOM', familyName:'Storm', email:'g@g.ca'})
+            },
+            apiRequest: async(method='GET', paramPath='/',data={})=>{
+                const url = 'http://localhost:3004/students' + paramPath;
+                const fetchOptions = {
+                    credentials: 'include', // allows api to set cookies in the browser
+                    referrerPolicy: 'strict-origin-when-cross-origin',
+                    headers: { // headers required by lo4serverapi project otherwise 406 error
+                        'Accept': 'application/json',
+                        'X-Requested-With':'XmlHttpRequest',
+                        'Content-Type':'application/json; charset=utf-8'
+                    }
+                };
+                // ensure valid/allowed request methods
+                method = method.toUpperCase();
+                fetchOptions.method = ['GET','POST','PUT','DELETE'].includes(method) ? method: 'GET';
+
+                // convert JS object to JSON string – GET request cannot have a body property
+                if(fetchOptions.method != 'GET')fetchOptions.body = JSON.stringify(data);
+
+                const res = await fetch(url,fetchOptions); // this the browser's version of Postman
+                console.log(res);//OPTIONAL: help debug if we have issues
+
+                // if status code of the response in not in the 200s
+                if(!res.ok){
+                    const error = new Error(res.statusText + ':' + res.status);
+                    error.status = res.status;
+                    error.statusText = res.statusText;
+                    error.data = await res.json();
+                    throw error;
+                }
+
+                return res.json(); // convert response body/data INTO JSON
+            },
+            getStudents() { // uses apiRequest function to get an array of students from lo4serverapi project
+                const pathParam = this.searchString.length ? '/?searchwherelike='+this.searchString : '/'
+                this.apiRequest('GET', pathParam)
+                    .then(data => {
+                        this.students = data; // the data should be a JSON array of student Objects
+                    });
+            },
+            postStudent() {
+                this.apiRequest('POST','/',this.studentToCreate)
+                    .then(data => {
+                     // at this point the response send back JSON student and our code converted to a JS object
+                        this.students.push(data) // add student object to students array (then vue renders it to the page)
+                    })
+                    .catch(err => {
+                        //TODO show an error message to the user
+                    })
+            },
+            deleteStudent(id) {
+                this.apiRequest('DELETE', '/'+ id)
+                    .then(data => {
+                        // quick dirty - get all students from api
+                        //this.getStudents();
+                        // better solution use javascript to remove the student
+                        // from the student array
+                        this.students = this.students.filter(s=>s.id!==id);
+                    })
+            },
+
+
+        },
+        computed:{ // this section acts like dynamic data properties/variables
+            countDoubled(){ return this.count*2 }
+        },
+        mounted(){ // the hook for the part of the lifecycle when the app is started and mounts the app element
+            this.incrementCount(5);
+            this.getStudents();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import {DeepPartial, Like} from 'typeorm'
+import {Like} from 'typeorm'
 import {AppDataSource} from '../data-source'
 import {NextFunction, Request, Response} from 'express'
 
@@ -7,7 +7,6 @@ import {Route} from '../decorator/Route'
 import {validate, ValidationError, ValidatorOptions} from 'class-validator'
 import {Character} from "../entity/Character";
 import axios, {AxiosResponse} from 'axios';
-import {User} from "../entity/User";
 
 type DndClass = {
     name: string;
@@ -40,27 +39,11 @@ export default class CharacterController {
 
 
 
-    @Route('get', '/:id*?')
-    async read(req: Request, res: Response, next: NextFunction): Promise<{ count: number; characters: Character[] | Character }> {
-        // Check if the client wants the count
-        let count: number | undefined;
-        if (req.query.count) {
-            const findOptions: any = {}; // prepare order and where props
-            const existingFields = this.characterRepo.metadata.ownColumns.map((col) => col.propertyName);
-
-            if (req.query.searchwherelike) {
-                findOptions.where = [];
-                existingFields.forEach((column) => {
-                    findOptions.where.push({ [column]: Like('%' + req.query.searchwherelike + '%') });
-                });
-            }
-
-            count = await this.characterRepo.count(findOptions);
-        }
-
+    @Route('get', '/:id(\\d+)*?')  //using regex because it accepted non-number ids and intercepted other routes
+    // return a character count and array of characters, or return a single character's attributes
+    async read(req: Request, res: Response, next: NextFunction): Promise<{ count: number; characters: Character[] }| Character> {
         if (req.params.id) {
-            const character = await this.characterRepo.findOneBy({ id: req.params.id });
-            return { count: count || 1, characters: character };
+            return await this.characterRepo.findOneBy({id: req.params.id});
         } else {
             const findOptions: any = { order: {} }; // prepare order and where props
             const existingFields = this.characterRepo.metadata.ownColumns.map((col) => col.propertyName);
@@ -82,17 +65,18 @@ export default class CharacterController {
 
             // Return both count and characters
             const characters = await this.characterRepo.find(findOptions);
-            return { count: count || characters.length, characters };
+            return { count: characters.length, characters };
         }
     }
 
 
 
-    //add get characters by userid
-    @Route('get','/users/:id')
-    async readById(req: Request, res: Response, next: NextFunction): Promise<Character | Character[]> {
+    @Route('get','/users/:id(\\d+)*?')
+    //return count and character array same as above
+    async readById(req: Request, res: Response, next: NextFunction): Promise<{count: number; characters:  Character[]}> {
         if (req.params.id) {
-            return await this.characterRepo.find({ where: { user: { id: Number(req.params.id) } } });
+            const characters = await this.characterRepo.find({ where: {userId:  Number(req.params.id) } });
+            return {count: characters.length, characters}
         }
     }
 
@@ -107,10 +91,10 @@ export default class CharacterController {
     @Route('post')
     async create (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[] | { error: string }> {
 
+        //assign the user found during the authenticate method, (user being found through the bearer token they send)
         const newCharacter = Object.assign(new Character(), req.body)
-        newCharacter.user = {
-            id: req.user.id,
-        } //assign the user found during the authenticate method, (user being found through the bearer token they send)
+        // newCharacter.user = {id: req.user.id}
+        newCharacter.userId = req.user.id;
 
         const violations = await validate(newCharacter, this.validOptions)
 
@@ -149,6 +133,15 @@ export default class CharacterController {
     }
 
 
+
+
+
+
+
+
+
+
+
     //utilizing axios this time to call dnd5e api to get class and race related data
 
     private dnd5eApiUrl = "https://www.dnd5eapi.co/api/";
@@ -164,8 +157,8 @@ export default class CharacterController {
 
 
 
-    @Route('get', '/classes')
-    async getDndClasses(req: Request, res: Response, next: NextFunction): Promise<any[]> {
+    @Route('get', '/dndapi/classes')
+    async getDndClassesFromApi(req: Request, res: Response, next: NextFunction): Promise<any[]> {
         try {
             const response: AxiosResponse = await axios.get(`${this.dnd5eApiUrl}classes`)
             const classNames = response.data.results;
@@ -188,8 +181,8 @@ export default class CharacterController {
         }
     }
 
-    @Route('get', '/races')
-    async getDndRaces(req: Request, res: Response, next: NextFunction): Promise<any[]> {
+    @Route('get', '/dndapi/races')
+    async getDndRacesFromApi(req: Request, res: Response, next: NextFunction): Promise<any[]> {
         try {
             const response: AxiosResponse = await axios.get(`${this.dnd5eApiUrl}races`)
             const raceNames = response.data.results;

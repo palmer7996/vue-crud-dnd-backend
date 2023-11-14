@@ -41,8 +41,9 @@ export class User {
 
 
 
-  // make a 1-1 connection between user and character
 
-  @OneToMany(() => Character, (character) => character.user)
-  characters: Character[];
+  // make a 1-1 connection between user and character (currently not in use)
+
+  // @OneToMany(() => Character, (character) => character.user)
+  // characters: Character[];
 }

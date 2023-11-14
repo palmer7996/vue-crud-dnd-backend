@@ -71,7 +71,7 @@ AppDataSource.initialize().then(async () => {
 
     // Iterate over all routes and register them to our express application
 
-    routes.forEach((route) => {   //implement authenticateToken before allowing access to any route
+    routes.forEach((route) => {   //implement authenticateToken before allowing access to any route, if successful authentication it will next to allow the route to be executed
       // eslint-disable-next-line max-len
       app[route.method.toLowerCase()](path + route.param, authenticateToken,
           (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -136,9 +136,7 @@ AppDataSource.initialize().then(async () => {
           class: 'Wizard',
           race: 'Elf',
           alignment: 'Chaotic Evil',
-          user: {
-            id: 1,
-          },
+          userId: 1
       })
   )
 

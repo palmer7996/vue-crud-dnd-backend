@@ -446,8 +446,8 @@
     <routine id="176" parent="1" name="fts5"/>
     <schema id="177" parent="1" name="main">
       <Current>1</Current>
-      <IntrospectionTimestamp>2023-11-12.20:59:38.272</IntrospectionTimestamp>
-      <LocalIntrospectionTimestamp>2023-11-13.02:59:38</LocalIntrospectionTimestamp>
+      <IntrospectionTimestamp>2023-11-14.13:59:45.834</IntrospectionTimestamp>
+      <LocalIntrospectionTimestamp>2023-11-14.19:59:45</LocalIntrospectionTimestamp>
     </schema>
     <argument id="178" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1495,27 +1495,27 @@
       <Position>3</Position>
     </column>
     <column id="526" parent="518" name="gender">
-      <DasType>varchar(50)|0s</DasType>
+      <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
     <column id="527" parent="518" name="class">
-      <DasType>varchar(50)|0s</DasType>
+      <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
     <column id="528" parent="518" name="race">
-      <DasType>varchar(50)|0s</DasType>
+      <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
     <column id="529" parent="518" name="alignment">
-      <DasType>varchar(20)|0s</DasType>
+      <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
     <column id="530" parent="518" name="description">
-      <DasType>varchar(255)|0s</DasType>
+      <DasType>varchar|0s</DasType>
       <Position>8</Position>
     </column>
     <column id="531" parent="518" name="dateCreated">
@@ -1524,119 +1524,114 @@
       <NotNull>1</NotNull>
       <Position>9</Position>
     </column>
-    <column id="532" parent="518" name="user_id">
+    <column id="532" parent="518" name="userId">
       <DasType>integer|0s</DasType>
       <Position>10</Position>
     </column>
-    <foreign-key id="533" parent="518" name="FK_213c1fb65c9f528cc11393f2edb">
-      <ColNames>user_id</ColNames>
-      <RefColNames>id</RefColNames>
-      <RefTableName>user</RefTableName>
-    </foreign-key>
-    <key id="534" parent="518">
+    <key id="533" parent="518">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="535" parent="519" name="type">
+    <column id="534" parent="519" name="type">
       <DasType>TEXT|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="536" parent="519" name="name">
+    <column id="535" parent="519" name="name">
       <DasType>TEXT|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="537" parent="519" name="tbl_name">
+    <column id="536" parent="519" name="tbl_name">
       <DasType>TEXT|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="538" parent="519" name="rootpage">
+    <column id="537" parent="519" name="rootpage">
       <DasType>INT|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="539" parent="519" name="sql">
+    <column id="538" parent="519" name="sql">
       <DasType>TEXT|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="540" parent="520" name="name">
+    <column id="539" parent="520" name="name">
       <Position>1</Position>
     </column>
-    <column id="541" parent="520" name="seq">
+    <column id="540" parent="520" name="seq">
       <Position>2</Position>
     </column>
-    <column id="542" parent="521" name="id">
+    <column id="541" parent="521" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="543" parent="521" name="givenName">
+    <column id="542" parent="521" name="givenName">
       <DasType>nvarchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="544" parent="521" name="familyName">
+    <column id="543" parent="521" name="familyName">
       <DasType>nvarchar(50)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="545" parent="521" name="email">
+    <column id="544" parent="521" name="email">
       <DasType>varchar(320)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
     </column>
-    <column id="546" parent="521" name="phone">
+    <column id="545" parent="521" name="phone">
       <DasType>varchar(17)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="547" parent="521" name="address">
+    <column id="546" parent="521" name="address">
       <DasType>varchar(150)|0s</DasType>
       <Position>6</Position>
     </column>
-    <column id="548" parent="521" name="password">
+    <column id="547" parent="521" name="password">
       <DasType>nvarchar(25)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <key id="549" parent="521">
+    <key id="548" parent="521">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="550" parent="522" name="id">
+    <column id="549" parent="522" name="id">
       <AutoIncrement>1</AutoIncrement>
       <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="551" parent="522" name="username">
+    <column id="550" parent="522" name="username">
       <DasType>nvarchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="552" parent="522" name="firstName">
+    <column id="551" parent="522" name="firstName">
       <DasType>nvarchar(50)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
     </column>
-    <column id="553" parent="522" name="lastName">
+    <column id="552" parent="522" name="lastName">
       <DasType>nvarchar(50)|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="554" parent="522" name="age">
+    <column id="553" parent="522" name="age">
       <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="555" parent="522" name="token">
+    <column id="554" parent="522" name="token">
       <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
     </column>
-    <column id="556" parent="522" name="accessLevel">
+    <column id="555" parent="522" name="accessLevel">
       <DasType>varchar|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
     </column>
-    <key id="557" parent="522">
+    <key id="556" parent="522">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>

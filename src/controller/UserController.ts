@@ -9,6 +9,8 @@ import { Route } from '../decorator/Route'
 export class UserController {
   private readonly userRepository = AppDataSource.getRepository(User)
 
+  //disable get requests being made on the user db
+  /*
   @Route('GET')
   async all (req: Request, res: Response, next: NextFunction): Promise<User []> {
     return await this.userRepository.find()
@@ -19,12 +21,18 @@ export class UserController {
     return await this.userRepository.findOneBy({ id: req.params.id })
   }
 
+
+   */
+
   // typescript - private property fully typed object
   // only show first error
   // still validate missing properties
   // hide the target and value from the error object
   // private . . .
 
+
+  //disable post and delete requests being made on the user db
+  /*
   @Route('post')
   async save (req: Request, res: Response, next: NextFunction): Promise<any> {
     const newUser = Object.assign(new User(), req.body)
@@ -42,4 +50,8 @@ export class UserController {
     const userToRemove = await this.userRepository.findOneBy({ id: req.params.id })
     return await this.userRepository.remove(userToRemove)
   }
+
+
+
+   */
 }

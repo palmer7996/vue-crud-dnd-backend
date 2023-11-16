@@ -8,21 +8,6 @@ import {validate, ValidationError, ValidatorOptions} from 'class-validator'
 import {Character} from "../entity/Character";
 import axios, {AxiosResponse} from 'axios';
 
-type DndClass = {
-    name: string;
-    hitDie?: number;
-    profChoices?: string;
-};
-
-type DndRace = {
-    name: string;
-    speed?: number;
-    abilityScoreType?: string;
-    abilityScoreBonus?: number;
-    ageDesc?: string;
-    alignmentDesc?: string;
-};
-
 
 @Controller('/characters')
 export default class CharacterController {
@@ -90,17 +75,15 @@ export default class CharacterController {
 
     @Route('post')
     async create (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[] | { error: string }> {
+        if (req.body.id) {  //don't allow it to be included as a parameter because it could edit already existing character
+            return {error: "You cannot select an ID when creating a character"}
+        }
 
-        //assign the user found during the authenticate method, (user being found through the bearer token they send)
         const newCharacter = Object.assign(new Character(), req.body)
-        // newCharacter.user = {id: req.user.id}
+        //assign the userid found during the authenticate method, (user being found through the bearer token they send)
         newCharacter.userId = req.user.id;
 
         const violations = await validate(newCharacter, this.validOptions)
-
-        if (req.body.id) {  //don't allow it to be included as a parameter because it'll function as a post and edit other users
-            return {error: "You cannot select an ID when creating a character"}
-        }
         if (violations.length) {
             res.statusCode = 422 // Unprocessable Entity
             return violations
@@ -110,17 +93,13 @@ export default class CharacterController {
     }
 
     @Route('put', '/:id')
-    async update (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[]> {
-        /*     PRELOAD - https://typeorm.io/#/repository-api
-        Creates a new entity from the plain javascript object.
-        If the entity already exists in the database, then it loads it and replaces all values with the new ones from the given object,
-        and returns a new entity that is actually an entity loaded from the database with all properties replaced from the new object.
-        Note that given entity-like object must have an entity id / primary key to find entity by.
-        Returns undefined if entity with given id was not found.
-    */
+    async update (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[]|{ error: string }> {
         const characterToUpdate = await this.characterRepo.preload(req.body)
         // Extra validation - ensure the id param matched the id submitted in the body
-        if (!characterToUpdate || characterToUpdate.id.toString() !== req.params.id) next()
+        if (!characterToUpdate || characterToUpdate.id.toString() !== req.params.id){
+            return {error: "id in the url must be identical to the id in the body"}
+            //next() //pass to the 404
+        }
         else {
             const violations = await validate(characterToUpdate, this.validOptions)
             if (violations.length) {

@@ -2,7 +2,8 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import { Request, Response } from 'express'
 import { AppDataSource } from './data-source'
-
+import { DndClassData } from './data/DndClassData';
+import { DndRaceData } from './data/DndRaceData';
 
 
 //  obsolete import because routes.ts is obsolete:
@@ -18,7 +19,11 @@ import {Character} from "./entity/Character";
 import CharacterController from "./controller/CharacterController";
 import {DeepPartial} from "typeorm";
 
-import {authenticateToken} from "./middleware/authenticate";  //import from middleware
+import {authenticateToken} from "./middleware/authenticate";
+import {DndRace} from "./entity/DndRace";
+import {DndClass} from "./entity/DndClass";
+import {DndClassController} from "./controller/DndClassController";
+import {DndRaceController} from "./controller/DndRaceController";  //import from middleware
 
 const port = 3004
 // cors options
@@ -31,11 +36,20 @@ const corsOptions = {
 }
 
 AppDataSource.initialize().then(async () => {
+  // make fetch requests from console works on chrome, but not on Microsoft edge
   // create express app
-  const app = express()
+  const app = express() //comment out
+
+  // alternative, utilizing: import { createExpressServer } from "routing-controllers";
+  // const app = createExpressServer({
+  //   cors: corsOptions,
+  //   controllers: [CharacterController, DndClassController, DndRaceController]
+  // })
+
   app.use(bodyParser.json())
 
-  app.use(cors(corsOptions))
+
+  app.use(cors(corsOptions)) //comment out
 
   // require headers 'X-Requested-With: XmlHttpRequest' and 'Accept:application/json'
   // app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -44,7 +58,7 @@ AppDataSource.initialize().then(async () => {
   // })
 
   // add handler for pre-flight options request to ANY path
-  app.options('*', cors(corsOptions))
+  app.options('*', cors(corsOptions)) //comment out
 
   // register express routes from defined application routes
   /*  Routes.forEach(route => {
@@ -59,7 +73,7 @@ AppDataSource.initialize().then(async () => {
   }) */
 
   // Iterate over all our controllers and register our routes
-  const controllers: any[] = [UserController, StudentController, CharacterController] //setup controllers in index
+  const controllers: any[] = [UserController, StudentController, CharacterController, DndClassController, DndRaceController] //setup controllers in index
   controllers.forEach((controller) => {
     // This is our instantiated class
     // eslint-disable-next-line new-cap
@@ -142,20 +156,35 @@ AppDataSource.initialize().then(async () => {
 
 */
 
+    //inserting into race and class db's using premade data gained from api calling dnd5eapi
 
-  // don't need test data for students being created
-  /*
- await AppDataSource.manager.save(
-   AppDataSource.manager.create(Student, {
-     givenName: 'Phantom',
-     familyName: 'Assassin',
-     phone: '306-555-9999',
-     address: '1 Happy Place',
-     email: 'b@b.ca',
-     password: '123456Pw-'
-   })
- )
-   */
+    /*
+  for (const item of DndClassData) {
+    await AppDataSource.manager.save(
+        AppDataSource.manager.create(DndClass, {
+          name: item.name,
+          hitDie: item.hitDie,
+          profChoices: item.profChoices
+        })
+    )
+
+  }
+
+  for (const item of DndRaceData) {
+    await AppDataSource.manager.save(
+        AppDataSource.manager.create(DndRace, {
+          name: item.name,
+          speed: item.speed,
+          abilityScoreType: item.abilityScoreType,
+          abilityScoreBonus: item.abilityScoreBonus,
+          ageDesc: item.ageDesc,
+          alignmentDesc: item.alignmentDesc
+        })
+    )
+  }
+
+
+*/
 
 
   console.log('Open http://localhost:' + port + '/characters to see results')

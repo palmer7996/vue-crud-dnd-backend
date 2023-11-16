@@ -64,7 +64,7 @@ export default class StudentController {
   @Route('put', '/:id')
   async update (req: Request, res: Response, next: NextFunction): Promise<Student | ValidationError[]> {
     /*     PRELOAD - https://typeorm.io/#/repository-api
-    Creates a new entity from the a plain javascript object.
+    Creates a new entity from a plain javascript object.
     If the entity already exists in the database, then it loads it and replaces all values with the new ones from the given object,
     and returns a new entity that is actually an entity loaded from the database with all properties replaced from the new object.
     Note that given entity-like object must have an entity id / primary key to find entity by.

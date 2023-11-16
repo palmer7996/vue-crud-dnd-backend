@@ -1,11 +1,41 @@
-import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from 'typeorm'
-import {IsIn, IsNotEmpty, IsOptional, IsPhoneNumber, Length, Matches, MaxLength, Min} from 'class-validator'
+import {BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn} from 'typeorm'
+import {
+    IsIn,
+    IsNotEmpty,
+    IsOptional,
+    Length,
+    Max,
+    Min,
+    ValidationError,
+    validate,
+    ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, Validate
+} from 'class-validator'
 import {User} from "./User";
+import {AppDataSource} from "../data-source";
+import {DndRace} from "./DndRace";
+import {DndClass} from "./DndClass";
+import {Query} from "typeorm/driver/Query";
 
 const genderArray = ["Male","Female", "Non-binary", "Other"]
 
+const alignmentArray = [
+    'Lawful Good', 'Neutral Good', 'Chaotic Good',
+    'Lawful Neutral', 'True Neutral', 'Chaotic Neutral',
+    'Lawful Evil', 'Neutral Evil', 'Chaotic Evil',
+]
+
+
 
 //get class and race array from the database
+// const raceRepo = AppDataSource.getRepository(DndRace)
+// const classRepo = AppDataSource.getRepository(DndClass)
+
+// no longer in use
+const raceArray = [
+    'Dragonborn', 'Dwarf', 'Elf',
+    'Gnome', 'Half-Elf', 'Half-Orc',
+    'Halfling', 'Human', 'Tiefling',
+]
 
 const classArray = [
     'Barbarian', 'Bard',
@@ -16,19 +46,41 @@ const classArray = [
     'Warlock', 'Wizard',
 ]
 
-const raceArray = [
-    'Dragonborn', 'Dwarf', 'Elf',
-    'Gnome', 'Half-Elf', 'Half-Orc',
-    'Halfling', 'Human', 'Tiefling',
-]
 
+export class validatorParent {
+    validValues = null;
+    async validate(value: any, args: ValidationArguments) {
+        const category = args.constraints[0];  //only a single constraint which is the category name as the first position
+        this.validValues = await this.fetchValuesFromDatabase(category);  //assign validValues to be used in the default message
+        return this.validValues.includes(value);
+    }
 
+    protected async fetchValuesFromDatabase(type: string): Promise<string[]> {
+        const repo = AppDataSource.getRepository(type === 'class' ? DndClass : DndRace);
+        const result = await repo.find();
+        return result.map((item) => item.name);
+    }
+}
 
-const alignmentArray = [
-    'Lawful Good', 'Neutral Good', 'Chaotic Good',
-    'Lawful Neutral', 'True Neutral', 'Chaotic Neutral',
-    'Lawful Evil', 'Neutral Evil', 'Chaotic Evil',
-]
+// used to be one validatorConstraint for both, but the modification of the instance of validValues messed up the defaultMessage (displayed raceNames as the message for both class and race)
+@ValidatorConstraint({ name: 'isValidClassValue', async: true })
+export class isValidClassValue extends validatorParent implements ValidatorConstraintInterface {
+    defaultMessage(args: ValidationArguments) {
+        const category = args.constraints[0];
+        const invalidValue = args.value; // Assuming args.value is the invalid value
+        //console.log(this.validValues)
+        return `Please choose a valid ${category} from the list: ${this.validValues}. The provided value (${invalidValue}) is not valid.`;
+    }
+}
+@ValidatorConstraint({name: 'isValidRaceValue', async: true})
+export class isValidRaceValue extends validatorParent implements ValidatorConstraintInterface {
+    defaultMessage(args: ValidationArguments) {
+        const category = args.constraints[0];
+        const invalidValue = args.value; // Assuming args.value is the invalid value
+        //console.log(this.validValues)
+        return `Please choose a valid ${category} from the list: ${this.validValues}. The provided value (${invalidValue}) is not valid.`;
+    }
+}
 
 @Entity()
 export class Character {
@@ -53,12 +105,14 @@ export class Character {
 
     @Column({ type: 'varchar', nullable: false })
     @IsNotEmpty({ message: 'Class is Required' })
-    @IsIn(classArray, { message: 'Please choose between the options: ' + classArray.toString() })
+    //@IsIn(classArray, { message: 'Please choose between the options: ' })
+    @Validate(isValidClassValue, ['class'])
     class: string
 
     @Column({ type: 'varchar', nullable: false })
     @IsNotEmpty({ message: 'Race is Required' })
-    @IsIn(raceArray, { message: 'Please choose between the options: ' + raceArray.toString() })
+    // @IsIn(raceArray, { message: 'Please choose between the options: ' + raceArray.toString() })
+    @Validate(isValidRaceValue, ['race'])
     race: string;
 
     @Column({ type: 'varchar', nullable: false })
@@ -71,7 +125,7 @@ export class Character {
     @Column({ type: 'varchar', nullable: true })
     @IsOptional()
     @IsNotEmpty({ message: 'Description is required if provided' }) // to prevent just sending an empty string
-    description: string;
+    description?: string;
 
 
     //could implement stats with FK, currently not implementing stats
@@ -87,12 +141,78 @@ export class Character {
     @IsOptional()
     userId: number;
 
-    //tried as a foreign key caused issues
 
-    //create foreign key to link to user record
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    strength?: number;
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    dexterity?: number;
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    constitution?: number;
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    intelligence?: number;
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    wisdom?: number;
+
+    @Column({ type: 'integer', nullable: true })
+    @IsOptional()
+    @Min(1, { message: 'Minimum value is 1' })
+    @Max(20, { message: 'Maximum value is 20' })
+    charisma?: number;
+
+
+
+    // no longer in use
+    // allow user to only input race/class names found in the race and class databases that are edited by the admin
+    //@BeforeInsert()
+    async validateField() {
+        const validClassValues = await this.fetchClassNamesFromDB();
+        const validRaceValues = await this.fetchRaceNamesFromDB();
+        if (!validClassValues.includes(this.class)) {
+            throw new Error('Please choose between the options: ' + validClassValues);
+        }
+        if(!validRaceValues.includes(this.race)){
+            throw new Error('Please choose between the options: ' + validRaceValues);
+        }
+    }
+
+    private async fetchClassNamesFromDB(): Promise<string[]> {
+        let classRepo = AppDataSource.getRepository(DndClass)
+        const result = await classRepo.find();
+        return result.map(item=>item.name)
+    }
+    private async fetchRaceNamesFromDB(): Promise<string[]> {
+        let classRepo = AppDataSource.getRepository(DndRace)
+        const result = await classRepo.find();
+        return result.map(item=>item.name)
+    }
+
+
+
+    //tried as a foreign key to link to user record, caused issues
 
     // @ManyToOne(() => User, (user) => user.characters, { nullable: true })
     // @JoinColumn({ name: 'userId' }) // specifies the foreign key column name
     // @IsOptional()
     // user: User;
 }
+

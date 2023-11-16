@@ -8,18 +8,18 @@ export class User {
   @IsOptional()
     id: number
 
-  @Column({ type: 'nvarchar', length: 50 })
+  @Column({ type: 'varchar', length: 50 })
   @Length(1, 50, { message: 'username must be from $constraint1 to $constraint2 characters ' })
   @IsNotEmpty({ message: 'username is required' })
     username: string
 
 
-  @Column({ type: 'nvarchar', length: 50 })
+  @Column({ type: 'varchar', length: 50 })
   @Length(1, 50, { message: 'First Name must be from $constraint1 to $constraint2 characters ' })
   @IsNotEmpty({ message: 'First Name is required' })
     firstName: string
 
-  @Column({ type: 'nvarchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   @MaxLength(50, { message: 'Last Name can be at most $constraint1 characters' })
   @IsOptional()
     lastName: string

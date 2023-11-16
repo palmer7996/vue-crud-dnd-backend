@@ -1,6 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from 'typeorm'
 import { IsNotEmpty, IsOptional, Length, MaxLength } from 'class-validator'
-import {Character} from "./Character";
+import { Character } from './Character'
 
 @Entity()
 export class User {
@@ -12,7 +12,6 @@ export class User {
   @Length(1, 50, { message: 'username must be from $constraint1 to $constraint2 characters ' })
   @IsNotEmpty({ message: 'username is required' })
     username: string
-
 
   @Column({ type: 'varchar', length: 50 })
   @Length(1, 50, { message: 'First Name must be from $constraint1 to $constraint2 characters ' })
@@ -27,20 +26,16 @@ export class User {
   @Column({ type: 'integer', width: 3 })
     age: number
 
-
-  //these would be manually inputted 
+  // these would be manually inputted
 
   @Column({ type: 'varchar', width: 50 })
     token: string
 
   @Column({ type: 'varchar', width: 50 })
     accessLevel: string
-  //accessLevels = write, read or admin
+  // accessLevels = write, read or admin
 
-  //when creating a user, defaults to write?
-
-
-
+  // when creating a user, defaults to write?
 
   // make a 1-1 connection between user and character (currently not in use)
 

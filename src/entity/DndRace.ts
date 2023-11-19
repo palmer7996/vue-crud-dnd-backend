@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator'
+import { IsIn, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator'
 
 const abilityTypesArray = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
@@ -9,7 +9,8 @@ export class DndRace {
   @IsOptional()
     id: number
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false })
+  @Length(1, 50, { message: 'Name must be from $constraint1 to $constraint2 characters' })
   @IsNotEmpty({ message: 'name is Required' })
     name: string
 
@@ -30,11 +31,13 @@ export class DndRace {
   @Min(1, { message: 'abilityScoreBonus must be at least 1' }) // setting max and min abilityScoreBonus for custom races
     abilityScoreBonus: number
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Length(1, 255, { message: 'ageDesc must be from $constraint1 to $constraint2 characters' })
   @IsNotEmpty({ message: 'ageDesc is Required' })
     ageDesc: string
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Length(1, 255, { message: 'alignmentDesc must be from $constraint1 to $constraint2 characters' })
   @IsNotEmpty({ message: 'alignmentDesc is Required' })
     alignmentDesc: string
 }

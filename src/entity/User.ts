@@ -4,6 +4,8 @@ import { Character } from './Character'
 
 @Entity()
 export class User {
+  // currently not allowing userdb to be edited, user's are simply manually inputted into the database
+
   @PrimaryGeneratedColumn()
   @IsOptional()
     id: number
@@ -34,8 +36,6 @@ export class User {
   @Column({ type: 'varchar', width: 50 })
     accessLevel: string
   // accessLevels = write, read or admin
-
-  // when creating a user, defaults to write?
 
   // make a 1-1 connection between user and character (currently not in use)
 

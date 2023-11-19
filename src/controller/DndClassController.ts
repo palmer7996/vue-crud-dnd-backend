@@ -48,9 +48,10 @@ export class DndClassController {
   }
 
   @Route('post')
+  // eslint-disable-next-line max-len
   async create (req: Request, res: Response, next: NextFunction): Promise<DndClass | ValidationError[] | { error: string }> {
     if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing classes
-      return { error: 'You cannot select an ID when creating a character' }
+      return res.status(422).json({ error: 'You cannot select an ID when creating a class' })
     }
 
     const newRace = Object.assign(new DndClass(), req.body)

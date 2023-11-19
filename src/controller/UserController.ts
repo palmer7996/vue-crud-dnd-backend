@@ -9,7 +9,7 @@ import { Route } from '../decorator/Route'
 export class UserController {
   private readonly userRepository = AppDataSource.getRepository(User)
 
-  // disable get requests being made on the user db
+  // disable get and all other requests being made on the user db
   /*
   @Route('GET')
   async all (req: Request, res: Response, next: NextFunction): Promise<User []> {

@@ -51,7 +51,7 @@ export class DndRaceController {
   @Route('post')
   async create (req: Request, res: Response, next: NextFunction): Promise<DndRace | ValidationError[] | { error: string }> {
     if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing races
-      return { error: 'You cannot select an ID when creating a character' }
+      return res.status(422).json({ error: 'You cannot select an ID when creating a race' })
     }
 
     const newRace = Object.assign(new DndRace(), req.body)

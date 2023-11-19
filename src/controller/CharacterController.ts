@@ -71,7 +71,7 @@ export default class CharacterController {
   @Route('post')
   async create (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[] | { error: string }> {
     if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing character
-      return { error: 'You cannot select an ID when creating a character' }
+      return res.status(422).json({ error: 'You cannot select an ID when creating a character' })
     }
 
     const newCharacter = Object.assign(new Character(), req.body)
@@ -88,12 +88,11 @@ export default class CharacterController {
   }
 
   @Route('put', '/:id')
-  async update (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[] | { error: string }> {
+  async update (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[]> {
     const characterToUpdate = await this.characterRepo.preload(req.body)
     // Extra validation - ensure the id param matched the id submitted in the body
     if (!characterToUpdate || characterToUpdate.id.toString() !== req.params.id) {
-      return { error: 'id in the url must be identical to the id in the body' }
-      // next() //pass to the 404
+      next() // pass to the 404
     } else {
       const violations = await validate(characterToUpdate, this.validOptions)
       if (violations.length) {
@@ -105,7 +104,7 @@ export default class CharacterController {
     }
   }
 
-  // utilizing axios this time to call dnd5e api to get class and race related data
+  // utilizing axios this time to call dnd5e api to get the original class and race related data
 
   private readonly dnd5eApiUrl = 'https://www.dnd5eapi.co/api/'
   private async fetchSpecificData (category: string, index: string): Promise<any> {
@@ -118,7 +117,7 @@ export default class CharacterController {
     }
   }
 
-  @Route('get', '/dndapi/classes')
+  @Route('get', '/original_classes')
   async getDndClassesFromApi (req: Request, res: Response, next: NextFunction): Promise<any[]> {
     try {
       const response: AxiosResponse = await axios.get(`${this.dnd5eApiUrl}classes`)
@@ -142,7 +141,7 @@ export default class CharacterController {
     }
   }
 
-  @Route('get', '/dndapi/races')
+  @Route('get', '/original_races')
   async getDndRacesFromApi (req: Request, res: Response, next: NextFunction): Promise<any[]> {
     try {
       const response: AxiosResponse = await axios.get(`${this.dnd5eApiUrl}races`)

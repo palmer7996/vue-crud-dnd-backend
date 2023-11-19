@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
-import { IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator'
+import { IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator'
 
 @Entity()
 export class DndClass {
@@ -7,7 +7,8 @@ export class DndClass {
   @IsOptional()
     id: number
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', length: 50, nullable: false })
+  @Length(1, 50, { message: 'Name must be from $constraint1 to $constraint2 characters' })
   @IsNotEmpty({ message: 'name is Required' })
     name: string
 
@@ -17,7 +18,8 @@ export class DndClass {
   @Min(4, { message: 'hitDie must be at least 4' }) // setting max and min for custom classes slightly above the range for regular classes (6-12)
     hitDie: number
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Length(1, 255, { message: 'profChoices must be from $constraint1 to $constraint2 characters' })
   @IsNotEmpty({ message: 'profChoices is Required' })
     profChoices: string
 }

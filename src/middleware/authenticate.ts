@@ -15,7 +15,8 @@ const characterRepo = AppDataSource.getRepository(Character)
 const raceRepo = AppDataSource.getRepository(DndRace)
 const classRepo = AppDataSource.getRepository(DndClass)
 
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+// eslint-disable-next-line max-len
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<{ error: string }> => {
   const givenToken = req.header('Authorization')?.replace('Bearer ', '')
 
   try {
@@ -34,7 +35,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
   }
 }
 
-const handleInfoPath = async (req: Request, res: Response, next: NextFunction, givenToken: string, type: string) => {
+// eslint-disable-next-line max-len
+const handleInfoPath = async (req: Request, res: Response, next: NextFunction, givenToken: string, type: string): Promise<{ error: string }> => {
   let selected = null
   // check if the selected id (if there is one, refers to an id in the db)
   if (req.params.id) {
@@ -76,12 +78,14 @@ const handleInfoPath = async (req: Request, res: Response, next: NextFunction, g
   next()
 }
 
-const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string) => {
+// eslint-disable-next-line max-len
+const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string): Promise<null> => {
   // make sure the id refers to a character in the database (for both gets and put/delete)
-  const character = new Character()
+  let character = new Character()
   if (req.params.id) {
     console.log('Id of character being requested for get or edit: ' + req.params.id)
-    const character = await characterRepo.findOneBy({ id: req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
+    character = await characterRepo.findOneBy({ id: req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
+
     if (character == null) {
       return res.status(400).json({ error: 'Could not find specified character by the id provided' })
     }
@@ -94,7 +98,12 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
 
   // get the user record from the db using the given token
   let user = new User()
-  user.accessLevel = 'read' // auto-assign tokenless users to a read access level no token provided
+  user.accessLevel = 'read' // auto-assign tokenless users to a read access level no token provided, with current implementation not really needed
+
+  if (!givenToken) {
+    return res.status(401).json({ error: 'Missing token' })
+  }
+
   if (givenToken) { // re-assign based on token
     user = await userRepo.findOneBy({ token: givenToken })
     if (!user) {
@@ -106,10 +115,6 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
   const isEditOperation = ['DELETE', 'PUT'].includes(req.method)
 
   if (isWriteOperation) {
-    if (!givenToken) {
-      return res.status(401).json({ error: 'Missing token' })
-    }
-
     if (user.accessLevel === 'admin') {
       // do nothing
     } else if (user.accessLevel === 'write') {
@@ -127,8 +132,8 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
       // if user trying to edit and user not an admin check if the id of the user matches the userId on the character
       if (user.accessLevel === 'write') {
         if (isEditOperation) {
-          console.log('Character owned by: ' + character?.userId) // ? because in case userId is null, which it shouldn't ever be
-          console.log('User with write perms attempting edit: ' + user.id)
+          console.log('Character owned by ID: ' + character?.userId) // ? because in case userId is null, which it shouldn't ever be
+          console.log('User with write perms attempting edit ID: ' + user.id)
           if (character?.userId !== user.id) {
             // if userId is null/undefined it will still trigger this message to prevent them form editing characters not explicitly assigned to them
             return res.status(403).json({ error: 'Cannot edit character that isn\'t yours as a non-admin' })

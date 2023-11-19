@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm'
 import {
   IsIn,
   IsNotEmpty,
@@ -6,16 +6,11 @@ import {
   Length,
   Max,
   Min,
-  ValidationError,
-  validate,
-  ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, Validate
+  ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, Validate, MaxLength
 } from 'class-validator'
-import { User } from './User'
 import { AppDataSource } from '../data-source'
 import { DndRace } from './DndRace'
 import { DndClass } from './DndClass'
-import { Query } from 'typeorm/driver/Query'
-
 const genderArray = ['Male', 'Female', 'Non-binary', 'Other']
 
 const alignmentArray = [
@@ -28,25 +23,25 @@ const alignmentArray = [
 // const raceRepo = AppDataSource.getRepository(DndRace)
 // const classRepo = AppDataSource.getRepository(DndClass)
 
-// no longer in use
-const raceArray = [
-  'Dragonborn', 'Dwarf', 'Elf',
-  'Gnome', 'Half-Elf', 'Half-Orc',
-  'Halfling', 'Human', 'Tiefling'
-]
-
-const classArray = [
-  'Barbarian', 'Bard',
-  'Cleric', 'Druid',
-  'Fighter', 'Monk',
-  'Paladin', 'Ranger',
-  'Rogue', 'Sorcerer',
-  'Warlock', 'Wizard'
-]
+// previous method of validation, works for original set, not with custom races/classes
+// const raceArray = [
+//   'Dragonborn', 'Dwarf', 'Elf',
+//   'Gnome', 'Half-Elf', 'Half-Orc',
+//   'Halfling', 'Human', 'Tiefling'
+// ]
+//
+// const classArray = [
+//   'Barbarian', 'Bard',
+//   'Cleric', 'Druid',
+//   'Fighter', 'Monk',
+//   'Paladin', 'Ranger',
+//   'Rogue', 'Sorcerer',
+//   'Warlock', 'Wizard'
+// ]
 
 export class validatorParent {
-  validValues = null
-  async validate (value: any, args: ValidationArguments) {
+  validValues: string[] = null
+  async validate (value: any, args: ValidationArguments): Promise<boolean> {
     const category = args.constraints[0] // only a single constraint which is the category name as the first position
     this.validValues = await this.fetchValuesFromDatabase(category) // assign validValues to be used in the default message
     return this.validValues.includes(value)
@@ -62,20 +57,20 @@ export class validatorParent {
 // used to be one validatorConstraint for both, but the modification of the instance of validValues messed up the defaultMessage (displayed raceNames as the message for both class and race)
 @ValidatorConstraint({ name: 'isValidClassValue', async: true })
 export class isValidClassValue extends validatorParent implements ValidatorConstraintInterface {
-  defaultMessage (args: ValidationArguments) {
-    const category = args.constraints[0]
-    const invalidValue = args.value // Assuming args.value is the invalid value
+  defaultMessage (args: ValidationArguments): string {
+    const category: string = args.constraints[0]
+    const invalidValue: string = args.value // Assuming args.value is the value related to this validator constraint in this case
     // console.log(this.validValues)
-    return `Please choose a valid ${category} from the list: ${this.validValues}. The provided value (${invalidValue}) is not valid.`
+    return `Please choose a valid ${category} from the list: ${this.validValues.toString()}. The provided value (${invalidValue}) is not valid.`
   }
 }
 @ValidatorConstraint({ name: 'isValidRaceValue', async: true })
 export class isValidRaceValue extends validatorParent implements ValidatorConstraintInterface {
-  defaultMessage (args: ValidationArguments) {
-    const category = args.constraints[0]
-    const invalidValue = args.value // Assuming args.value is the invalid value
+  defaultMessage (args: ValidationArguments): string {
+    const category: string = args.constraints[0]
+    const invalidValue: string = args.value
     // console.log(this.validValues)
-    return `Please choose a valid ${category} from the list: ${this.validValues}. The provided value (${invalidValue}) is not valid.`
+    return `Please choose a valid ${category} from the list: ${this.validValues.toString()}. The provided value (${invalidValue}) is not valid.`
   }
 }
 
@@ -117,8 +112,9 @@ export class Character {
   @IsIn(alignmentArray, { message: 'Please choose between the options: ' + alignmentArray.toString() })
     alignment: string
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   @IsOptional()
+  @MaxLength(150, { message: 'Description can be at most $constraint1 characters ' })
   @IsNotEmpty({ message: 'Description is required if provided' }) // to prevent just sending an empty string
     description?: string
 
@@ -172,7 +168,8 @@ export class Character {
   // no longer in use
   // allow user to only input race/class names found in the race and class databases that are edited by the admin
   // @BeforeInsert()
-  async validateField () {
+
+  async validateField (): Promise<void> {
     const validClassValues = await this.fetchClassNamesFromDB()
     const validRaceValues = await this.fetchRaceNamesFromDB()
     if (!validClassValues.includes(this.class)) {

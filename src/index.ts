@@ -1,9 +1,7 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import { Request, Response } from 'express'
+// import { Request, Response } from 'express'
 import { AppDataSource } from './data-source'
-import { DndClassData } from './data/DndClassData'
-import { DndRaceData } from './data/DndRaceData'
 
 //  obsolete import because routes.ts is obsolete:
 //  import { Routes } from './routes'
@@ -12,18 +10,22 @@ import * as createError from 'http-errors'
 import { RouteDefinition } from './decorator/RouteDefinition'
 import * as cors from 'cors'
 
-import StudentController from './controller/StudentController'
-
 import CharacterController from './controller/CharacterController'
 
 import { authenticateToken } from './middleware/authenticate'
 import { DndClassController } from './controller/DndClassController'
-import { DndRaceController } from './controller/DndRaceController' // import from middleware
+import { DndRaceController } from './controller/DndRaceController'
+
+// imports required if you want to autofill the default races and classes in their respective db's (bottom of page)
+// import { DndClassData } from './data/DndClassData'
+// import { DndRaceData } from './data/DndRaceData'
+// import { DndClass } from './entity/DndClass'
+// import { DndRace } from './entity/DndRace'
 
 const port = 3004
 // cors options
 const corsOptions = {
-  origin: /localhost\:\d{4,5}$/i, // localhost any 4 or 5  digit port
+  origin: /localhost:\d{4,5}$/i, // localhost any 4 or 5  digit port
   credentials: true, // needed to set and return cookies
   allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
   methods: 'GET,PUT,POST,DELETE',
@@ -67,7 +69,7 @@ AppDataSource.initialize().then(async () => {
   }) */
 
   // Iterate over all our controllers and register our routes
-  const controllers: any[] = [UserController, StudentController, CharacterController, DndClassController, DndRaceController] // setup controllers in index
+  const controllers: any[] = [UserController, CharacterController, DndClassController, DndRaceController] // setup controllers in index
   controllers.forEach((controller) => {
     // This is our instantiated class
     // eslint-disable-next-line new-cap
@@ -152,28 +154,26 @@ AppDataSource.initialize().then(async () => {
   /*
   for (const item of DndClassData) {
     await AppDataSource.manager.save(
-        AppDataSource.manager.create(DndClass, {
-          name: item.name,
-          hitDie: item.hitDie,
-          profChoices: item.profChoices
-        })
+      AppDataSource.manager.create(DndClass, {
+        name: item.name,
+        hitDie: item.hitDie,
+        profChoices: item.profChoices
+      })
     )
-
   }
 
   for (const item of DndRaceData) {
     await AppDataSource.manager.save(
-        AppDataSource.manager.create(DndRace, {
-          name: item.name,
-          speed: item.speed,
-          abilityScoreType: item.abilityScoreType,
-          abilityScoreBonus: item.abilityScoreBonus,
-          ageDesc: item.ageDesc,
-          alignmentDesc: item.alignmentDesc
-        })
+      AppDataSource.manager.create(DndRace, {
+        name: item.name,
+        speed: item.speed,
+        abilityScoreType: item.abilityScoreType,
+        abilityScoreBonus: item.abilityScoreBonus,
+        ageDesc: item.ageDesc,
+        alignmentDesc: item.alignmentDesc
+      })
     )
   }
-
 */
 
   console.log('Open http://localhost:' + port + '/characters to see results')

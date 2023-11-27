@@ -26,8 +26,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       await handleInfoPath(req, res, next, givenToken, 'races')
     } else if (req.route.path.startsWith('/info/classes')) {
       await handleInfoPath(req, res, next, givenToken, 'classes')
-    } else { // included for student post
-      // next()
+    } else { // allow through because it'll be the /users for login route
+      next()
     }
   } catch (error) {
     console.log(error)

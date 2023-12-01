@@ -50,9 +50,10 @@ export class DndClassController {
   @Route('post')
   // eslint-disable-next-line max-len
   async create (req: Request, res: Response, next: NextFunction): Promise<DndClass | ValidationError[] | { error: string }> {
-    if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing classes
+   // commented it out to make updating easier by using post for creates and updates
+    /* if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing classes
       return res.status(422).json({ error: 'You cannot select an ID when creating a class' })
-    }
+    } */
 
     const newRace = Object.assign(new DndClass(), req.body)
     const violations = await validate(newRace, this.validOptions)

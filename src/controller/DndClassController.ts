@@ -41,27 +41,27 @@ export class DndClassController {
 
   @Route('delete', '/:id')
   async delete (req: Request, res: Response, next: NextFunction): Promise<DndClass> {
-    const raceToRemove = await this.classRepo.findOneBy({ id: req.params.id })
+    const classToRemove = await this.classRepo.findOneBy({ id: req.params.id })
     // res.statusCode = 204 --No Content - browser will complain since we are actually returning content
-    if (raceToRemove) return await this.classRepo.remove(raceToRemove)
+    if (classToRemove) return await this.classRepo.remove(classToRemove)
     else next()
   }
 
   @Route('post')
   // eslint-disable-next-line max-len
   async create (req: Request, res: Response, next: NextFunction): Promise<DndClass | ValidationError[] | { error: string }> {
-   // commented it out to make updating easier by using post for creates and updates
+    // commented it out to make updating easier by using post for creates and updates
     /* if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing classes
       return res.status(422).json({ error: 'You cannot select an ID when creating a class' })
     } */
 
-    const newRace = Object.assign(new DndClass(), req.body)
-    const violations = await validate(newRace, this.validOptions)
+    const newClass = Object.assign(new DndClass(), req.body)
+    const violations = await validate(newClass, this.validOptions)
     if (violations.length) {
       res.statusCode = 422 // Unprocessable Entity
       return violations
     } else {
-      return await this.classRepo.save(newRace)
+      return await this.classRepo.save(newClass)
     }
   }
 
@@ -74,16 +74,16 @@ export class DndClassController {
         Note that given entity-like object must have an entity id / primary key to find entity by.
         Returns undefined if entity with given id was not found.
     */
-    const raceToUpdate = await this.classRepo.preload(req.body)
+    const classToUpdate = await this.classRepo.preload(req.body)
     // Extra validation - ensure the id param matched the id submitted in the body
-    if (!raceToUpdate || raceToUpdate.id.toString() !== req.params.id) next() // pass the buck until 404 error is sent
+    if (!classToUpdate || classToUpdate.id.toString() !== req.params.id) next() // pass the buck until 404 error is sent
     else {
-      const violations = await validate(raceToUpdate, this.validOptions)
+      const violations = await validate(classToUpdate, this.validOptions)
       if (violations.length) {
         res.statusCode = 422 // Unprocessable Entity
         return violations
       } else {
-        return await this.classRepo.save(raceToUpdate)
+        return await this.classRepo.save(classToUpdate)
       }
     }
   }

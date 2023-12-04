@@ -82,10 +82,10 @@ const handleInfoPath = async (req: Request, res: Response, next: NextFunction, g
 const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string): Promise<null> => {
   // make sure the id refers to a character in the database (for both gets and put/delete)
   let character = new Character()
-  if (req.params.id) {
-    console.log('Id of character being requested for get or edit: ' + req.params.id)
-    character = await characterRepo.findOneBy({ id: req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
-
+  if (req.body.id || req.params.id) { // looking at body first then params because post edits will be made without an id in the params
+    console.log('Id of character being requested for get or edit: ' + req.body?.id || req.params.id)
+    character = await characterRepo.findOneBy({ id: req.body.id || req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
+    console.log(character)
     if (character == null) {
       return res.status(400).json({ error: 'Could not find specified character by the id provided' })
     }
@@ -112,7 +112,7 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
   }
 
   const isWriteOperation = ['POST', 'DELETE', 'PUT'].includes(req.method)
-  const isEditOperation = ['DELETE', 'PUT'].includes(req.method)
+  const isEditOperation = ['DELETE', 'PUT', 'POST'].includes(req.method) // added post because I'll be using the post to do edits
 
   if (isWriteOperation) {
     if (user.accessLevel === 'admin') {

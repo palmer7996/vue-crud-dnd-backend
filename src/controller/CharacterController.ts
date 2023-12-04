@@ -70,9 +70,10 @@ export default class CharacterController {
 
   @Route('post')
   async create (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[] | { error: string }> {
-    if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing character
+  // allowing edits through posts with a few changes
+    /*    if (req.body.id) { // don't allow it to be included as a parameter because it could edit already existing character
       return res.status(422).json({ error: 'You cannot select an ID when creating a character' })
-    }
+    } */
 
     const newCharacter = Object.assign(new Character(), req.body)
     // assign the userid found during the authenticate method, (user being found through the bearer token they send)

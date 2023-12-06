@@ -112,7 +112,7 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
   }
 
   const isWriteOperation = ['POST', 'DELETE', 'PUT'].includes(req.method)
-  const isEditOperation = ['DELETE', 'PUT'].includes(req.method)
+  const isEditOperation = ['DELETE', 'PUT', 'POST'].includes(req.method) // modified because post is now being used for editing
 
   if (isWriteOperation) {
     if (user.accessLevel === 'admin') {

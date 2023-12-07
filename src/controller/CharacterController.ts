@@ -88,13 +88,11 @@ export default class CharacterController {
     }
   }
 
-  @Route('put', '/:id')
+  @Route('put')  // took out id in the url to make things easier
   async update (req: Request, res: Response, next: NextFunction): Promise<Character | ValidationError[]> {
     const characterToUpdate = await this.characterRepo.preload(req.body)
-    // Extra validation - ensure the id param matched the id submitted in the body
-    if (!characterToUpdate || characterToUpdate.id.toString() !== req.params.id) {
-      next() // pass to the 404
-    } else {
+
+
       const violations = await validate(characterToUpdate, this.validOptions)
       if (violations.length) {
         res.statusCode = 422 // Unprocessable Entity
@@ -102,7 +100,7 @@ export default class CharacterController {
       } else {
         return await this.characterRepo.save(characterToUpdate)
       }
-    }
+
   }
 
   // utilizing axios this time to call dnd5e api to get the original class and race related data

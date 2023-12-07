@@ -80,10 +80,10 @@ const handleInfoPath = async (req: Request, res: Response, next: NextFunction, g
 
 // eslint-disable-next-line max-len
 const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string): Promise<null> => {
-  // edited to work with posts because they don't have req.params in the params
+  // edited puts to not have an id in the url to
   // make sure the id refers to a character in the database (for both gets and put/delete)
   let character = new Character()
-  if (req.body.id || req.params.id) { // looking at body first then params because post edits will be made without an id in the params
+  if (req.body.id || req.params.id) { // looking at body first then params because put edits will be made without an id in the params
     console.log('Id of character being requested for get or edit: ' + req.body?.id || req.params.id)
     character = await characterRepo.findOneBy({ id: req.body.id || req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
     console.log(character)
@@ -113,7 +113,7 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
   }
 
   const isWriteOperation = ['POST', 'DELETE', 'PUT'].includes(req.method)
-  const isEditOperation = ['DELETE', 'PUT', 'POST'].includes(req.method)  //modified because post is being used for editing now
+  const isEditOperation = ['DELETE', 'PUT'].includes(req.method)
 
   if (isWriteOperation) {
     if (user.accessLevel === 'admin') {
@@ -142,15 +142,6 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
           // else let through
         }
       }
-      // if it is not a create and admin is editing, don't let the userId be changed
-          // currently its being changed in the POST so this doesn't help
-
-      else if(user.accessLevel ==='admin'&&!req.body.id){
-        console.log("it gets here")
-        console.log(req.body) //both these are the
-        console.log(character)
-      }
-
     }
   }
   // else allow user to perform the action

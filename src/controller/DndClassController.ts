@@ -65,15 +65,9 @@ export class DndClassController {
     }
   }
 
-  @Route('put', '/:id')
+  // put not being used because currently no userid linked to race because made for admins only
+  @Route('put')
   async update (req: Request, res: Response, next: NextFunction): Promise<DndClass | ValidationError[]> {
-    /*     PRELOAD - https://typeorm.io/#/repository-api
-        Creates a new entity from the a plain javascript object.
-        If the entity already exists in the database, then it loads it and replaces all values with the new ones from the given object,
-        and returns a new entity that is actually an entity loaded from the database with all properties replaced from the new object.
-        Note that given entity-like object must have an entity id / primary key to find entity by.
-        Returns undefined if entity with given id was not found.
-    */
     const classToUpdate = await this.classRepo.preload(req.body)
     // Extra validation - ensure the id param matched the id submitted in the body
     if (!classToUpdate || classToUpdate.id.toString() !== req.params.id) next() // pass the buck until 404 error is sent

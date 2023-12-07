@@ -142,6 +142,15 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
           // else let through
         }
       }
+      // if it is not a create and admin is editing, don't let the userId be changed
+          // currently its being changed in the POST so this doesn't help
+
+      else if(user.accessLevel ==='admin'&&!req.body.id){
+        console.log("it gets here")
+        console.log(req.body) //both these are the
+        console.log(character)
+      }
+
     }
   }
   // else allow user to perform the action

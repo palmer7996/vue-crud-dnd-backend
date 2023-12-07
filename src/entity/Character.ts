@@ -115,7 +115,7 @@ export class Character {
   @Column({ type: 'varchar', length: 255, nullable: true })
   @IsOptional()
   @MaxLength(150, { message: 'Description can be at most $constraint1 characters ' })
-  @IsNotEmpty({ message: 'Description is required if provided' }) // to prevent just sending an empty string
+  // @IsNotEmpty({ message: 'Description is required if provided' }) // to prevent just sending an empty string
     description?: string
 
   // could implement stats with FK, currently not implementing stats

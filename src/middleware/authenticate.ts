@@ -80,6 +80,7 @@ const handleInfoPath = async (req: Request, res: Response, next: NextFunction, g
 
 // eslint-disable-next-line max-len
 const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string): Promise<null> => {
+  // edited to work with both posts that don't have req.params in the params
   // make sure the id refers to a character in the database (for both gets and put/delete)
   let character = new Character()
   if (req.body.id || req.params.id) { // looking at body first then params because post edits will be made without an id in the params

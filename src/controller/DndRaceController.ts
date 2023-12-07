@@ -68,7 +68,6 @@ export class DndRaceController {
   // put not being used because currently no userid linked to race because made for admins only
   @Route('put')
   async update (req: Request, res: Response, next: NextFunction): Promise<DndRace | ValidationError[]> {
-
     const raceToUpdate = await this.raceRepo.preload(req.body)
     // Extra validation - ensure the id param matched the id submitted in the body
     if (!raceToUpdate || raceToUpdate.id.toString() !== req.params.id) next() // pass the buck until 404 error is sent

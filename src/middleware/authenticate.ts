@@ -91,7 +91,7 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
   let character = new Character()
   if (req.body.id || req.params.id) {
     const nonNullId = req.body.id ? req.body.id : req.params.id
-    console.log("This is the non null id: " + nonNullId)
+    console.log('This is the non null id: ' + nonNullId)
     console.log('Id of character being requested for edit: ' + nonNullId)
     character = await characterRepo.findOneBy({ id: nonNullId }) // find the character record to get its userid to make sure edits are allowed later on
     console.log(character)
@@ -99,8 +99,6 @@ const handleCharacterPath = async (req: Request, res: Response, next: NextFuncti
       return res.status(400).json({ error: 'Could not find specified character by the id provided' })
     }
   }
-
-
   // get the user record from the db using the given token
   let user = new User()
   user.accessLevel = 'read' // auto-assign tokenless users to a read access level no token provided, with current implementation not really needed

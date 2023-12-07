@@ -80,22 +80,26 @@ const handleInfoPath = async (req: Request, res: Response, next: NextFunction, g
 
 // eslint-disable-next-line max-len
 const handleCharacterPath = async (req: Request, res: Response, next: NextFunction, givenToken: string): Promise<null> => {
-  // edited puts to not have an id in the url to
-  // make sure the id refers to a character in the database (for both gets and put/delete)
-  let character = new Character()
-  if (req.body.id || req.params.id) { // looking at body first then params because put edits will be made without an id in the params
-    console.log('Id of character being requested for get or edit: ' + req.body?.id || req.params.id)
-    character = await characterRepo.findOneBy({ id: req.body.id || req.params.id }) // find the character record to get its userid to make sure edits are allowed later on
-    console.log(character)
-    if (character == null) {
-      return res.status(400).json({ error: 'Could not find specified character by the id provided' })
-    }
-  }
   // allow anyone to do a get (without tokens)
   if (req.method === 'GET') {
     next()
     return
   }
+
+  // edited puts to not have an id in the url to
+  // make sure the id refers to a character in the database put (in req.body) delete (in req.params)
+  let character = new Character()
+  if (req.body.id || req.params.id) {
+    const nonNullId = req.body.id ? req.body.id : req.params.id
+    console.log("This is the non null id: " + nonNullId)
+    console.log('Id of character being requested for edit: ' + nonNullId)
+    character = await characterRepo.findOneBy({ id: nonNullId }) // find the character record to get its userid to make sure edits are allowed later on
+    console.log(character)
+    if (character == null) {
+      return res.status(400).json({ error: 'Could not find specified character by the id provided' })
+    }
+  }
+
 
   // get the user record from the db using the given token
   let user = new User()

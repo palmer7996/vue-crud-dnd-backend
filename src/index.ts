@@ -3,8 +3,6 @@ import * as bodyParser from 'body-parser'
 // import { Request, Response } from 'express'
 import { AppDataSource } from './data-source'
 
-//  obsolete import because routes.tsis obsolete:
-//  import { Routes } from './routes'
 import { UserController } from './controller/UserController'
 import * as createError from 'http-errors'
 import { RouteDefinition } from './decorator/RouteDefinition'
@@ -15,12 +13,6 @@ import CharacterController from './controller/CharacterController'
 import { authenticateToken } from './middleware/authenticate'
 import { DndClassController } from './controller/DndClassController'
 import { DndRaceController } from './controller/DndRaceController'
-
-// imports required if you want to autofill the default races and classes in their respective db's (bottom of page)
-// import { DndClassData } from './data/DndClassData'
-// import { DndRaceData } from './data/DndRaceData'
-// import { DndClass } from './entity/DndClass'
-// import { DndRace } from './entity/DndRace'
 
 const port = 3004
 // cors options
@@ -35,38 +27,13 @@ const corsOptions = {
 AppDataSource.initialize().then(async () => {
   // make fetch requests from console works on chrome, but not on Microsoft edge
   // create express app
-  const app = express() // comment out
-
-  // alternative, utilizing: import { createExpressServer } from "routing-controllers";
-  // const app = createExpressServer({
-  //   cors: corsOptions,
-  //   controllers: [CharacterController, DndClassController, DndRaceController]
-  // })
+  const app = express()
 
   app.use(bodyParser.json())
 
-  app.use(cors(corsOptions)) // comment out
-
-  // require headers 'X-Requested-With: XmlHttpRequest' and 'Accept:application/json'
-  // app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  //   if (req.xhr && req.accepts('application/json')) next()
-  //   else next(createError(406))
-  // })
-
+  app.use(cors(corsOptions))
   // add handler for pre-flight options request to ANY path
   app.options('*', cors(corsOptions)) // comment out
-
-  // register express routes from defined application routes
-  /*  Routes.forEach(route => {
-    (app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
-      const result = (new (route.controller as any)())[route.action](req, res, next)
-      if (result instanceof Promise) {
-        result.then(result => result !== null && result !== undefined ? res.send(result) : undefined)
-      } else if (result !== null && result !== undefined) {
-        res.json(result)
-      }
-    })
-  }) */
 
   // Iterate over all our controllers and register our routes
   const controllers: any[] = [UserController, CharacterController, DndClassController, DndRaceController] // setup controllers in index
@@ -105,31 +72,14 @@ AppDataSource.initialize().then(async () => {
   // error handler
   app.use(function (err, req, res, next) {
     res.status(err.status || 500)
-    res.json({ status: err.status, message: err.message, stack: err.stack.split(/\s{4,}/) })  })
+    res.json({ status: err.status, message: err.message, stack: err.stack.split(/\s{4,}/) })
+  })
 
   // start express server
   app.listen(port)
 
   // test data for characters and users
   // commented below out, uncomment to create test data
-
-  // insert new users for test
-
-  /*
-
-  await AppDataSource.manager.save(
-    AppDataSource.manager.create(User, {
-      username: "plebian",
-      firstName: 'none',
-      lastName: 'none',
-      age: 27,
-        token: "asdf",
-        accessLevel:"read",
-    })
-  )
-
- */
-
   // insert new characters for test
 
   /*

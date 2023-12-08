@@ -23,10 +23,6 @@ export class DndRaceController {
       const findOptions: any = { order: {} } // prepare order and where props
       const existingFields = this.raceRepo.metadata.ownColumns.map((col) => col.propertyName)
 
-      // create a where clause ARRAY to eventually add to the findOptions
-      // you must also use Like ('% ... %')
-      // only add it to the findOptions IF searchwherelike query string is provided
-
       const sortField: string = existingFields.includes(req.query.sortby) ? req.query.sortby : 'id'
       findOptions.order[sortField] = req.query.reverse ? 'DESC' : 'ASC'
       // findOption looks like { order{ phone: 'DESC' } }
@@ -61,6 +57,7 @@ export class DndRaceController {
       res.statusCode = 422 // Unprocessable Entity
       return violations
     } else {
+      res.statusCode = 201
       return await this.raceRepo.save(newRace)
     }
   }

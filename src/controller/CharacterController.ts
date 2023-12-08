@@ -63,7 +63,7 @@ export default class CharacterController {
   @Route('delete', '/:id')
   async delete (req: Request, res: Response, next: NextFunction): Promise<Character> {
     const characterToRemove = await this.characterRepo.findOneBy({ id: req.params.id })
-    // res.statusCode = 204 --No Content - browser will complain since we are actually returning content
+    res.statusCode = 204 // No Content - browser will complain since we are actually returning content
     if (characterToRemove) return await this.characterRepo.remove(characterToRemove)
     else next()
   }
@@ -84,6 +84,7 @@ export default class CharacterController {
       res.statusCode = 422 // Unprocessable Entity
       return violations
     } else {
+      res.statusCode = 201
       return await this.characterRepo.save(newCharacter)
     }
   }

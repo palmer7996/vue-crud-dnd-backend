@@ -1,6 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, Unique } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm'
 import { IsNotEmpty, IsOptional, Length, MaxLength } from 'class-validator'
-import { Character } from './Character'
 
 @Entity()
 @Unique(['username'])

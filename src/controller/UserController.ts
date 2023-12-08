@@ -39,7 +39,7 @@ export class UserController {
     const usernameProvided = req.body.username
     const passProvided = req.body.password
     if (!usernameProvided || !passProvided) {
-      res.status(401).json({ message: 'Please provide a username and password' })
+      await res.status(401).json({ message: 'Please provide a username and password' })
     }
 
     console.log(usernameProvided)

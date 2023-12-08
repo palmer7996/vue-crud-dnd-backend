@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser'
 // import { Request, Response } from 'express'
 import { AppDataSource } from './data-source'
 
-//  obsolete import because routes.ts is obsolete:
+//  obsolete import because routes.tsis obsolete:
 //  import { Routes } from './routes'
 import { UserController } from './controller/UserController'
 import * as createError from 'http-errors'
@@ -105,8 +105,7 @@ AppDataSource.initialize().then(async () => {
   // error handler
   app.use(function (err, req, res, next) {
     res.status(err.status || 500)
-    res.json({ status: err.status, message: err.message, stack: err.stack.split(/\s{4,}/) })
-  })
+    res.json({ status: err.status, message: err.message, stack: err.stack.split(/\s{4,}/) })  })
 
   // start express server
   app.listen(port)
